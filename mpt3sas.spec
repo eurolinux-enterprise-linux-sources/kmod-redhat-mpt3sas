@@ -2,7 +2,7 @@
 %define kmod_vendor		redhat
 %define kmod_driver_version	26.100.01.00_dup7.6
 %define kmod_driver_epoch	%{nil}
-%define kmod_rpm_release	1
+%define kmod_rpm_release	3
 %define kmod_kernel_version	3.10.0-957.el7
 %define kmod_kernel_version_min	%{nil}
 %define kmod_kernel_version_dep	%{nil}
@@ -100,6 +100,7 @@ Patch66:	_RHEL-7.7_e-stor_04-36_scsi_mpt3sas_Fix,_False_timeout_prints_for_ioct.
 Patch67:	_RHEL-7.7_e-stor_05-36_scsi_mpt3sas_As_per_MPI-spec,_use_combined_repl.patch
 Patch68:	_RHEL-7.7_e-stor_06-36_scsi_mpt3sas_Update_driver_version__26.100.00.0.patch
 Patch69:	0070-bump-driver-version.patch
+Patch70:	0071-remove-Andromeda-pci_id-from-supported.patch
 
 %define findpat %( echo "%""P" )
 %define __find_requires /usr/lib/rpm/redhat/find-requires.ksyms
@@ -340,6 +341,7 @@ exit 0
 %patch67 -p1
 %patch68 -p1
 %patch69 -p1
+%patch70 -p1
 set -- *
 mkdir source
 mv "$@" source/
@@ -398,6 +400,9 @@ install -m 644 -D $PWD/obj/%{kmod_kbuild_dir}/Module.symvers $RPM_BUILD_ROOT/usr
 rm -rf $RPM_BUILD_ROOT
 
 %changelog
+* Wed Feb 06 2019 Eugene Syromiatnikov <esyr@redhat.com> 26.100.01.00_dup7.6-3
+- Remove Andromeda PCI ID from the list of supported PCI IDs.
+
 * Wed Jan 16 2019 Eugene Syromiatnikov <esyr@redhat.com> 26.100.01.00_dup7.6-1
 - db1eefc8c25d0a3feaed310963bb3c3d04d81825
 - Resolves: #bz1660390
