@@ -1,0 +1,30 @@
+Date: Fri,  1 Jun 2018 17:00:22 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL7.6 e-stor 46/60] scsi: mpt3sas: fix spelling mistake:
+ "disbale" -> "disable"
+
+Trivial fix to spelling mistake in module parameter description text
+
+[mkp: applied by hand]
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit 23b389c23139b80f5944a6d89e269974aaa9d139)
+---
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: src/drivers/scsi/mpt3sas/mpt3sas_base.c
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_base.c	2018-09-07 06:23:16.788308600 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_base.c	2018-09-07 06:23:48.314883911 +0200
+@@ -87,7 +87,7 @@
+ 
+ static int smp_affinity_enable = 1;
+ module_param(smp_affinity_enable, int, S_IRUGO);
+-MODULE_PARM_DESC(smp_affinity_enable, "SMP affinity feature enable/disbale Default: enable(1)");
++MODULE_PARM_DESC(smp_affinity_enable, "SMP affinity feature enable/disable Default: enable(1)");
+ 
+ static int max_msix_vectors = -1;
+ module_param(max_msix_vectors, int, 0);

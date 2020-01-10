@@ -1,0 +1,45 @@
+Date: Fri,  1 Jun 2018 17:00:35 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL7.6 e-stor 59/60] scsi: mpt3sas: fix possible memory leak.
+
+In ioctl exit path driver refers ioc_list to free memory associated with
+diag buffers and event_log pointer used to save events by driver.
+If ctl_exit() func is called after unregistering driver, then ioc_list will
+be empty and hence driver will not be able to free the allocated memory
+which in turn causes memory leak.
+So call ctl_exit() function before unregistering mpt3sas driver.
+
+Signed-off-by: Chaitra P B <chaitra.basappa@broadcom.com>
+Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit 87b3576e9eaba85644c643bb55b485b5330a2af5)
+
+Conflicts:
+	drivers/scsi/mpt3sas/mpt3sas_scsih.c
+(in _mpt3sas_exit)
+---
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Index: src/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_scsih.c	2018-09-07 06:23:16.980306014 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_scsih.c	2018-09-07 06:23:46.535907876 +0200
+@@ -11368,14 +11368,14 @@
+ 				MPT3SAS_DRIVER_VERSION);
+ #endif /* MPT2SAS_SCSI */
+ 
+-	pci_unregister_driver(&mpt3sas_driver);
+-
+ #ifdef MPT2SAS_SCSI
+ 	mpt3sas_ctl_exit(1);
+ #else
+ 	mpt3sas_ctl_exit(2);
+ #endif /* MPT2SAS_SCSI */
+ 
++	pci_unregister_driver(&mpt3sas_driver);
++
+ 	scsih_exit();
+ }
+ 

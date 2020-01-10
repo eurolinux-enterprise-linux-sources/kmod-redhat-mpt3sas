@@ -1,0 +1,38 @@
+Date: Fri,  1 Jun 2018 16:59:59 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL7.6 e-stor 23/60] scsi: mpt3sas: set default value for cb_idx
+
+No functional change
+
+Signed-off-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit ba4494d47bd02e5757b449a2cc2222fa3ff87bc8)
+---
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+Index: src/drivers/scsi/mpt3sas/mpt3sas_base.c
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_base.c	2018-09-07 06:11:42.658659104 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_base.c	2018-09-07 06:23:51.003847689 +0200
+@@ -899,7 +899,7 @@
+ _base_get_cb_idx(struct MPT3SAS_ADAPTER *ioc, u16 smid)
+ {
+ 	int i;
+-	u8 cb_idx;
++	u8 cb_idx = 0xFF;
+ 
+ 	if (smid < ioc->hi_priority_smid) {
+ 		i = smid - 1;
+@@ -910,8 +910,7 @@
+ 	} else if (smid <= ioc->hba_queue_depth) {
+ 		i = smid - ioc->internal_smid;
+ 		cb_idx = ioc->internal_lookup[i].cb_idx;
+-	} else
+-		cb_idx = 0xFF;
++	}
+ 	return cb_idx;
+ }
+ 

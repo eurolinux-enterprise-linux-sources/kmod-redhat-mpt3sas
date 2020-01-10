@@ -1,0 +1,40 @@
+Date: Tue,  4 Dec 2018 16:30:00 +0100
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL-7.7 e-stor 06/36] scsi: mpt3sas: Update driver version
+ "26.100.00.00"
+
+bz#1642370
+
+Updated driver version to "26.100.00.00"
+
+Signed-off-by: Chaitra P B <chaitra.basappa@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit 2cd4bf89f76311944fd7415a2402bd88f1eaf79d)
+
+Conflicts:
+	drivers/scsi/mpt3sas/mpt3sas_base.h
+(driver version RHEL specific)
+---
+ drivers/scsi/mpt3sas/mpt3sas_base.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.h b/drivers/scsi/mpt3sas/mpt3sas_base.h
+index 98e8e1722..c81454287 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.h
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.h
+@@ -74,8 +74,8 @@
+ #define MPT3SAS_DRIVER_NAME		"mpt3sas"
+ #define MPT3SAS_AUTHOR "Avago Technologies <MPT-FusionLinux.pdl@avagotech.com>"
+ #define MPT3SAS_DESCRIPTION	"LSI MPT Fusion SAS 3.0 Device Driver"
+-#define MPT3SAS_DRIVER_VERSION		"25.100.01.00"
+-#define MPT3SAS_MAJOR_VERSION		25
++#define MPT3SAS_DRIVER_VERSION		"26.100.01.00"
++#define MPT3SAS_MAJOR_VERSION		26
+ #define MPT3SAS_MINOR_VERSION		100
+ #define MPT3SAS_BUILD_VERSION		1
+ #define MPT3SAS_RELEASE_VERSION	00
+-- 
+2.14.5
+
+

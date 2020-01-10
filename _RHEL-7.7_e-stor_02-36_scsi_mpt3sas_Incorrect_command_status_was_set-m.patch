@@ -1,0 +1,45 @@
+Date: Tue,  4 Dec 2018 16:29:56 +0100
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL-7.7 e-stor 02/36] scsi: mpt3sas: Incorrect command status was
+ set/marked as not used.
+
+bz#1642370
+
+In _scsih_scan_finished driver should mark port_enable_cmd.status as
+'command not used', instead base_cmds.status was marked as 'command not
+used'. Update code to mark port_enable_cmd.status as 'command not used'.
+
+Signed-off-by: Chaitra P B <chaitra.basappa@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit e3586147b8b123fcaf739f4dcda741e13c5eaf9e)
+---
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index f72c74b6e..f8366bc60 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -10464,7 +10464,7 @@ scsih_scan_finished(struct Scsi_Host *shost, unsigned long time)
+ 	}
+ 
+ 	if (time >= (300 * HZ)) {
+-		ioc->base_cmds.status = MPT3_CMD_NOT_USED;
++		ioc->port_enable_cmds.status = MPT3_CMD_NOT_USED;
+ 		pr_info(MPT3SAS_FMT
+ 			"port enable: FAILED with timeout (timeout=300s)\n",
+ 			ioc->name);
+@@ -10486,7 +10486,7 @@ scsih_scan_finished(struct Scsi_Host *shost, unsigned long time)
+ 	}
+ 
+ 	pr_info(MPT3SAS_FMT "port enable: SUCCESS\n", ioc->name);
+-	ioc->base_cmds.status = MPT3_CMD_NOT_USED;
++	ioc->port_enable_cmds.status = MPT3_CMD_NOT_USED;
+ 
+ 	if (ioc->wait_for_discovery_to_complete) {
+ 		ioc->wait_for_discovery_to_complete = 0;
+-- 
+2.14.5
+
+

@@ -1,0 +1,53 @@
+Date: Fri,  1 Jun 2018 16:59:54 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL7.6 e-stor 18/60] scsi: mpt3sas: cleanup
+ _scsih_pcie_enumeration_event()
+
+The indenting wasn't right, because the last two prints weren't indented
+far enough.  Also it used pr_info() where it was supposed to use
+pr_cont().  I reversed the if statement and pulled the code in one tab
+and did a couple other minor cleanups.
+
+Fixes: 4318c7347847 ("scsi: mpt3sas: Handle NVMe PCIe device related events generated from firmware.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit 6767aced2ff1d4f214b2f0632d04dce02e6b6b2a)
+---
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
+
+Index: src/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_scsih.c	2018-09-07 06:11:42.609659764 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_scsih.c	2018-09-07 06:23:51.552840293 +0200
+@@ -7767,17 +7767,18 @@
+ 	Mpi26EventDataPCIeEnumeration_t *event_data =
+ 		(Mpi26EventDataPCIeEnumeration_t *)fw_event->event_data;
+ 
+-	if (ioc->logging_level & MPT_DEBUG_EVENT_WORK_TASK) {
+-		pr_info(MPT3SAS_FMT "pcie enumeration event: (%s) Flag 0x%02x",
+-			ioc->name,
+-			((event_data->ReasonCode ==
+-			MPI26_EVENT_PCIE_ENUM_RC_STARTED) ?
+-			"started" : "completed"), event_data->Flags);
++	if (!(ioc->logging_level & MPT_DEBUG_EVENT_WORK_TASK))
++		return;
++
++	pr_info(MPT3SAS_FMT "pcie enumeration event: (%s) Flag 0x%02x",
++		ioc->name,
++		(event_data->ReasonCode == MPI26_EVENT_PCIE_ENUM_RC_STARTED) ?
++			"started" : "completed",
++		event_data->Flags);
+ 	if (event_data->EnumerationStatus)
+-		pr_info("enumeration_status(0x%08x)",
+-		    le32_to_cpu(event_data->EnumerationStatus));
+-	pr_info("\n");
+-	}
++		pr_cont("enumeration_status(0x%08x)",
++			le32_to_cpu(event_data->EnumerationStatus));
++	pr_cont("\n");
+ }
+ 
+ /**

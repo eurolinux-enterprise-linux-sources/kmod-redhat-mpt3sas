@@ -1,0 +1,57 @@
+Date: Fri,  1 Jun 2018 17:00:01 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL7.6 e-stor 25/60] scsi: mpt3sas: separate out
+ _base_recovery_check()
+
+No functional change.
+
+Signed-off-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit 6a2d4618aef3d4ffb83514e5e58a091d61e54a03)
+---
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
+
+Index: src/drivers/scsi/mpt3sas/mpt3sas_base.c
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_base.c	2018-09-07 06:11:42.698658565 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_base.c	2018-09-07 06:23:50.676852094 +0200
+@@ -2876,6 +2876,19 @@
+ 	return smid;
+ }
+ 
++static void
++_base_recovery_check(struct MPT3SAS_ADAPTER *ioc)
++{
++	/*
++	 * See _wait_for_commands_to_complete() call with regards to this code.
++	 */
++	if (ioc->shost_recovery && ioc->pending_io_count) {
++		if (ioc->pending_io_count == 1)
++			wake_up(&ioc->reset_wq);
++		ioc->pending_io_count--;
++	}
++}
++
+ /**
+  * mpt3sas_base_free_smid - put smid back on free_list
+  * @ioc: per adapter object
+@@ -2901,15 +2914,7 @@
+ 		list_add(&ioc->scsi_lookup[i].tracker_list, &ioc->free_list);
+ 		spin_unlock_irqrestore(&ioc->scsi_lookup_lock, flags);
+ 
+-		/*
+-		 * See _wait_for_commands_to_complete() call with regards
+-		 * to this code.
+-		 */
+-		if (ioc->shost_recovery && ioc->pending_io_count) {
+-			if (ioc->pending_io_count == 1)
+-				wake_up(&ioc->reset_wq);
+-			ioc->pending_io_count--;
+-		}
++		_base_recovery_check(ioc);
+ 		return;
+ 	} else if (smid < ioc->internal_smid) {
+ 		/* hi-priority */

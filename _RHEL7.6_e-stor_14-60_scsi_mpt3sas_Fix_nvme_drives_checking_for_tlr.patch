@@ -1,0 +1,71 @@
+Date: Fri,  1 Jun 2018 16:59:50 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL7.6 e-stor 14/60] scsi: mpt3sas: Fix nvme drives checking for
+ tlr.
+
+Check for NVMe drives before enabling or checking tlr.
+
+Signed-off-by: Chaitra P B <chaitra.basappa@broadcom.com>
+Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit cd5897eda27dc155146f25ddf4b0dd9967b3e2bb)
+---
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
+
+Index: src/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_scsih.c	2018-09-07 06:11:42.577660195 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_scsih.c	2018-09-07 06:23:52.013834083 +0200
+@@ -2090,6 +2090,14 @@
+ 	return (sdev->channel == RAID_CHANNEL) ? 1 : 0;
+ }
+ 
++static int
++scsih_is_nvme(struct device *dev)
++{
++	struct scsi_device *sdev = to_scsi_device(dev);
++
++	return (sdev->channel == PCIE_CHANNEL) ? 1 : 0;
++}
++
+ /**
+  * scsih_get_resync - get raid volume resync percent complete
+  * @dev the device struct object
+@@ -4885,8 +4893,9 @@
+ 	/* Make sure Device is not raid volume.
+ 	 * We do not expose raid functionality to upper layer for warpdrive.
+ 	 */
+-	if (!ioc->is_warpdrive && !scsih_is_raid(&scmd->device->sdev_gendev)
+-	    && sas_is_tlr_enabled(scmd->device) && scmd->cmd_len != 32)
++	if (((!ioc->is_warpdrive && !scsih_is_raid(&scmd->device->sdev_gendev))
++		&& !scsih_is_nvme(&scmd->device->sdev_gendev))
++		&& sas_is_tlr_enabled(scmd->device) && scmd->cmd_len != 32)
+ 		mpi_control |= MPI2_SCSIIO_CONTROL_TLR_ON;
+ 
+ 	smid = mpt3sas_base_get_smid_scsiio(ioc, ioc->scsi_io_cb_idx, scmd);
+@@ -4931,8 +4940,8 @@
+ 
+ 	raid_device = sas_target_priv_data->raid_device;
+ 	if (raid_device && raid_device->direct_io_enabled)
+-		mpt3sas_setup_direct_io(ioc, scmd, raid_device, mpi_request,
+-		    smid);
++		mpt3sas_setup_direct_io(ioc, scmd,
++			raid_device, mpi_request, smid);
+ 
+ 	if (likely(mpi_request->Function == MPI2_FUNCTION_SCSI_IO_REQUEST)) {
+ 		if (sas_target_priv_data->flags & MPT_TARGET_FASTPATH_IO) {
+@@ -5463,9 +5472,10 @@
+ 		    le32_to_cpu(mpi_reply->ResponseInfo) & 0xFF;
+ 	if (!sas_device_priv_data->tlr_snoop_check) {
+ 		sas_device_priv_data->tlr_snoop_check++;
+-		if (!ioc->is_warpdrive &&
++		if ((!ioc->is_warpdrive &&
+ 		    !scsih_is_raid(&scmd->device->sdev_gendev) &&
+-		    sas_is_tlr_enabled(scmd->device) &&
++		    !scsih_is_nvme(&scmd->device->sdev_gendev))
++		    && sas_is_tlr_enabled(scmd->device) &&
+ 		    response_code == MPI2_SCSITASKMGMT_RSP_INVALID_FRAME) {
+ 			sas_disable_tlr(scmd->device);
+ 			sdev_printk(KERN_INFO, scmd->device, "TLR disabled\n");

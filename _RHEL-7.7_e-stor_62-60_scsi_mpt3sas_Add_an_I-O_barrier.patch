@@ -1,0 +1,28 @@
+Date: Thu,  6 Sep 2018 16:56:36 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL-7.7 e-stor 62/60] scsi: mpt3sas: Add an I/O barrier
+
+A barrier should be added to ensure proper ordering of memory mapped
+writes.
+
+Signed-off-by: Tomas Henzl <thenzl@redhat.com>
+Acked-by: Chaitra P B <chaitra.basappa@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit 10ee1f2206a3f5aa869bede4b7505b24203a7715)
+---
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+Index: src/drivers/scsi/mpt3sas/mpt3sas_base.c
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_base.c	2018-09-07 06:23:17.020305475 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_base.c	2018-09-07 06:23:46.301911028 +0200
+@@ -3349,6 +3349,7 @@
+ 	spin_lock_irqsave(writeq_lock, flags);
+ 	writel((u32)(data_out), addr);
+ 	writel((u32)(data_out >> 32), (addr + 4));
++	mmiowb();
+ 	spin_unlock_irqrestore(writeq_lock, flags);
+ }
+ 

@@ -1,0 +1,43 @@
+Date: Fri,  1 Jun 2018 17:00:09 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL7.6 e-stor 33/60] virtio_scsi: use cmd_size
+
+Taken almost entirely from Nicholas Bellinger's scsi-mq conversion.
+
+upstream commit b54197c43db88f4436717f554d623189cddce29e
+(limited to only scsi_cmd_priv function)
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Nicholas Bellinger <nab@linux-iscsi.org>
+
+[ DUP: moved to drivers/scsi/mpt3sas/mpt3sas_backport.h ]
+
+---
+ include/scsi/scsi_cmnd.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+Index: src/drivers/scsi/mpt3sas/mpt3sas_backport.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ src/drivers/scsi/mpt3sas/mpt3sas_backport.h	2018-09-07 06:18:59.538773966 +0200
+@@ -0,0 +1,18 @@
++#ifndef MPT3SAS_BACKPORT_H
++#define MPT3SAS_BACKPORT_H
++
++/* Backport of [RHEL7.6 e-stor 33/60] virtio_scsi: use cmd_size:
++ * original patch included it into include/scsi/scsi_cmnd.h, but we don't have
++ * it in the DUP.
++ */
++
++/*
++ * Return the driver private allocation behind the command.
++ * Only works if cmd_size is set in the host template.
++ */
++static inline void *scsi_cmd_priv(struct scsi_cmnd *cmd)
++{
++	return cmd + 1;
++}
++
++#endif /* MPT3SAS_BACKPORT_H */

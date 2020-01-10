@@ -1,0 +1,60 @@
+Date: Fri,  1 Jun 2018 16:59:56 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL7.6 e-stor 20/60] scsi: mpt3sas: Replace PCI pool old API
+
+The PCI pool API is deprecated. This commit replaces the PCI pool old
+API by the appropriate function with the DMA pool API.
+
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit 13a0640525367c60450043d14ce9f9596876dce0)
+---
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+Index: src/drivers/scsi/mpt3sas/mpt3sas_base.c
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_base.c	2018-09-07 06:11:42.628659508 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_base.c	2018-09-07 06:23:51.110846247 +0200
+@@ -3683,12 +3683,12 @@
+ 	if (ioc->pcie_sgl_dma_pool) {
+ 		for (i = 0; i < ioc->scsiio_depth; i++) {
+ 			if (ioc->scsi_lookup[i].pcie_sg_list.pcie_sgl)
+-				pci_pool_free(ioc->pcie_sgl_dma_pool,
++				dma_pool_free(ioc->pcie_sgl_dma_pool,
+ 				ioc->scsi_lookup[i].pcie_sg_list.pcie_sgl,
+ 				ioc->scsi_lookup[i].pcie_sg_list.pcie_sgl_dma);
+ 		}
+ 		if (ioc->pcie_sgl_dma_pool)
+-			pci_pool_destroy(ioc->pcie_sgl_dma_pool);
++			dma_pool_destroy(ioc->pcie_sgl_dma_pool);
+ 	}
+ 
+ 	if (ioc->config_page) {
+@@ -4098,21 +4098,21 @@
+ 
+ 		sz = nvme_blocks_needed * ioc->page_size;
+ 		ioc->pcie_sgl_dma_pool =
+-			pci_pool_create("PCIe SGL pool", ioc->pdev, sz, 16, 0);
++			dma_pool_create("PCIe SGL pool", &ioc->pdev->dev, sz, 16, 0);
+ 		if (!ioc->pcie_sgl_dma_pool) {
+ 			pr_info(MPT3SAS_FMT
+-			    "PCIe SGL pool: pci_pool_create failed\n",
++			    "PCIe SGL pool: dma_pool_create failed\n",
+ 			    ioc->name);
+ 			goto out;
+ 		}
+ 		for (i = 0; i < ioc->scsiio_depth; i++) {
+ 			ioc->scsi_lookup[i].pcie_sg_list.pcie_sgl =
+-					pci_pool_alloc(ioc->pcie_sgl_dma_pool,
++					dma_pool_alloc(ioc->pcie_sgl_dma_pool,
+ 					GFP_KERNEL,
+ 				&ioc->scsi_lookup[i].pcie_sg_list.pcie_sgl_dma);
+ 			if (!ioc->scsi_lookup[i].pcie_sg_list.pcie_sgl) {
+ 				pr_info(MPT3SAS_FMT
+-				    "PCIe SGL pool: pci_pool_alloc failed\n",
++				    "PCIe SGL pool: dma_pool_alloc failed\n",
+ 				    ioc->name);
+ 				goto out;
+ 			}

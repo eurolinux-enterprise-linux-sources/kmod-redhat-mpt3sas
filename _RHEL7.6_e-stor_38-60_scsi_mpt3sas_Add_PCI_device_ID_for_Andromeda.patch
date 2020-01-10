@@ -1,0 +1,85 @@
+Date: Fri,  1 Jun 2018 17:00:14 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL7.6 e-stor 38/60] scsi: mpt3sas: Add PCI device ID for
+ Andromeda.
+
+Add device ID and flag for Andromeda/MPI Endpoint.
+
+[mkp: typo]
+
+Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit c520691b38cde1d94f53e5782feba892f5645043)
+---
+ drivers/scsi/mpt3sas/mpi/mpi2_cnfg.h |  1 +
+ drivers/scsi/mpt3sas/mpt3sas_base.h  |  1 +
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 14 ++++++++++++--
+ 3 files changed, 14 insertions(+), 2 deletions(-)
+
+Index: src/drivers/scsi/mpt3sas/mpi/mpi2_cnfg.h
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpi/mpi2_cnfg.h	2018-09-05 17:29:34.178174094 +0200
++++ src/drivers/scsi/mpt3sas/mpi/mpi2_cnfg.h	2018-09-07 06:23:47.036901127 +0200
+@@ -523,6 +523,7 @@
+ #define MPI2_MFGPAGE_DEVID_SAS2308_1                (0x0086)
+ #define MPI2_MFGPAGE_DEVID_SAS2308_2                (0x0087)
+ #define MPI2_MFGPAGE_DEVID_SAS2308_3                (0x006E)
++#define MPI2_MFGPAGE_DEVID_SAS2308_MPI_EP           (0x02B0)
+ 
+ /*MPI v2.5 SAS products */
+ #define MPI25_MFGPAGE_DEVID_SAS3004                 (0x0096)
+Index: src/drivers/scsi/mpt3sas/mpt3sas_base.h
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_base.h	2018-09-07 06:23:16.692309894 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_base.h	2018-09-07 06:23:49.107873229 +0200
+@@ -1337,6 +1337,7 @@
+ 	u32		ring_buffer_offset;
+ 	u32		ring_buffer_sz;
+ 	u8		is_warpdrive;
++	u8		is_mcpu_endpoint;
+ 	u8		hide_ir_msg;
+ 	u8		mfg_pg10_hide_flag;
+ 	u8		hide_drives;
+Index: src/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_scsih.c	2018-09-07 06:23:16.693309880 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_scsih.c	2018-09-07 06:23:49.226871626 +0200
+@@ -10420,6 +10420,7 @@
+ 	case MPI2_MFGPAGE_DEVID_SAS2308_1:
+ 	case MPI2_MFGPAGE_DEVID_SAS2308_2:
+ 	case MPI2_MFGPAGE_DEVID_SAS2308_3:
++	case MPI2_MFGPAGE_DEVID_SAS2308_MPI_EP:
+ 		return MPI2_VERSION;
+ 	case MPI25_MFGPAGE_DEVID_SAS3004:
+ 	case MPI25_MFGPAGE_DEVID_SAS3008:
+@@ -10484,11 +10485,18 @@
+ 		ioc->hba_mpi_version_belonged = hba_mpi_version;
+ 		ioc->id = mpt2_ids++;
+ 		sprintf(ioc->driver_name, "%s", MPT2SAS_DRIVER_NAME);
+-		if (pdev->device == MPI2_MFGPAGE_DEVID_SSS6200) {
++		switch (pdev->device) {
++		case MPI2_MFGPAGE_DEVID_SSS6200:
+ 			ioc->is_warpdrive = 1;
+ 			ioc->hide_ir_msg = 1;
+-		} else
++			break;
++		case MPI2_MFGPAGE_DEVID_SAS2308_MPI_EP:
++			ioc->is_mcpu_endpoint = 1;
++			break;
++		default:
+ 			ioc->mfg_pg10_hide_flag = MFG_PAGE10_EXPOSE_ALL_DISKS;
++			break;
++		}
+ 		break;
+ 	case MPI25_VERSION:
+ 	case MPI26_VERSION:
+@@ -10925,6 +10933,8 @@
+ 		PCI_ANY_ID, PCI_ANY_ID },
+ 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2308_3,
+ 		PCI_ANY_ID, PCI_ANY_ID },
++	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SAS2308_MPI_EP,
++		PCI_ANY_ID, PCI_ANY_ID },
+ 	/* SSS6200 */
+ 	{ MPI2_MFGPAGE_VENDORID_LSI, MPI2_MFGPAGE_DEVID_SSS6200,
+ 		PCI_ANY_ID, PCI_ANY_ID },

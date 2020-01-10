@@ -1,0 +1,28 @@
+Date: Fri,  1 Jun 2018 16:59:55 +0200
+From: Tomas Henzl <thenzl@redhat.com>
+To: rhkernel-list@redhat.com
+Subject: [RHEL7.6 e-stor 19/60] scsi: mpt3sas: remove a stray KERN_INFO
+
+pr_info() has a KERN_INFO already so the second KERN_INFO isn't needed.
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+(cherry picked from commit 268eb4989410619c39b041d453a05a71b26b24c6)
+---
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+Index: src/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+===================================================================
+--- src.orig/drivers/scsi/mpt3sas/mpt3sas_scsih.c	2018-09-07 06:11:42.638659373 +0200
++++ src/drivers/scsi/mpt3sas/mpt3sas_scsih.c	2018-09-07 06:23:51.328843311 +0200
+@@ -8751,7 +8751,7 @@
+ 
+ 			if (pcie_device->handle == pcie_device_pg0->DevHandle)
+ 				goto out;
+-			pr_info(KERN_INFO "\thandle changed from(0x%04x)!!!\n",
++			pr_info("\thandle changed from(0x%04x)!!!\n",
+ 			    pcie_device->handle);
+ 			pcie_device->handle = pcie_device_pg0->DevHandle;
+ 			if (sas_target_priv_data)
